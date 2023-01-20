@@ -1,0 +1,25 @@
+{
+  "name": "autologin",
+  "version": "1.0.0",
+  "description": "Dalamud Plugin",
+  "main": "post-build.js",
+  "scripts": {
+    "postbuild": "node post-build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redeven/AutoLogin.git"
+  },
+  "keywords": [
+    "dalamud"
+  ],
+  "author": "Redeven",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/redeven/AutoLogin/issues"
+  },
+  "homepage": "https://github.com/redeven/AutoLogin#readme",
+  "devDependencies": {
+    "@types/node": "^16.11.56"
+  }
+}

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Timers;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Command;
@@ -11,7 +13,6 @@ using Dalamud.Logging;
 using Dalamud.Memory;
 using Dalamud.Plugin;
 using Dalamud.Utility;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
@@ -26,6 +27,8 @@ namespace AutoLogin {
         public Config PluginConfig { get; }
 
         private bool drawConfigWindow;
+        private bool firstLogin = true;
+        private bool processRunning = false;
 
         public void Dispose() {
             Service.UiBuilder.Draw -= DrawUI;
@@ -37,7 +40,6 @@ namespace AutoLogin {
         public Plugin(DalamudPluginInterface pluginInterface) {
 
             pluginInterface.Create<Service>();
-            FFXIVClientStructs.Resolver.Initialize(Service.SigScanner.SearchBase);
             this.PluginConfig = (Config)Service.PluginInterface.GetPluginConfig() ?? new Config();
             this.PluginConfig.Init(this);
 
@@ -60,13 +62,41 @@ namespace AutoLogin {
             Service.Framework.Update += OnFrameworkUpdate;
             if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0) {
                 Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
+                actionQueue.Enqueue(StartProcess);
                 actionQueue.Enqueue(OpenDataCenterMenu);
                 actionQueue.Enqueue(SelectDataCentre);
                 actionQueue.Enqueue(SelectWorld);
                 actionQueue.Enqueue(VariableDelay(10));
                 actionQueue.Enqueue(SelectCharacter);
                 actionQueue.Enqueue(SelectYes);
+                actionQueue.Enqueue(EndProcess);
             }
+            OnGameDisconnect();
+        }
+
+        private void OnGameDisconnect()
+        {
+            Timer stateTimer = new Timer(30000);
+            stateTimer.Elapsed += (object source, ElapsedEventArgs e) =>
+            {
+                if (!firstLogin && !processRunning && Service.ClientState.IsLoggedIn)
+                {
+                    if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
+                    {
+                        Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
+                        actionQueue.Enqueue(StartProcess);
+                        actionQueue.Enqueue(SelectOK);
+                        actionQueue.Enqueue(OpenDataCenterMenu);
+                        actionQueue.Enqueue(SelectDataCentre);
+                        actionQueue.Enqueue(SelectWorld);
+                        actionQueue.Enqueue(VariableDelay(10));
+                        actionQueue.Enqueue(SelectCharacter);
+                        actionQueue.Enqueue(SelectYes);
+                        actionQueue.Enqueue(EndProcess);
+                    }
+                }
+            };
+            stateTimer.Enabled = true;
         }
 
         private void OnSwapCharacterCommandHandler(string command, string arguments) {
@@ -142,7 +172,7 @@ namespace AutoLogin {
             
             
 
-            if (sw.ElapsedMilliseconds > 10000) {
+            if (sw.ElapsedMilliseconds > 30000) {
                 actionQueue.Clear();
                 return;
             }
@@ -239,6 +269,27 @@ namespace AutoLogin {
             return true;
         }
 
+        public bool SelectOK()
+        {
+            var addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 3);
+            if (addon == null) return false;
+            GenerateCallback(addon, 0);
+            addon->Hide(true);
+            return true;
+        }
+
+        public bool StartProcess()
+        {
+            processRunning = true;
+            return true;
+        }
+
+        public bool EndProcess()
+        {
+            processRunning = false;
+            firstLogin = false;
+            return true;
+        }
 
         public bool Delay5s() {
             Delay = 300;

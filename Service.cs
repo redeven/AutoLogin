@@ -8,6 +8,7 @@ using Dalamud.IoC;
 using Dalamud.Plugin;
 using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Keys;
+using Dalamud.Game.ClientState;
 
 namespace AutoLogin {
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
@@ -20,6 +21,7 @@ namespace AutoLogin {
         [PluginService] public static GameGui GameGui { get; private set; }
         [PluginService] public static SigScanner SigScanner { get; private set; }
         [PluginService] public static KeyState KeyState { get; private set; }
+        [PluginService] public static ClientState ClientState { get; private set; }
         [PluginService] public static ChatGui Chat { get; private set; }
 
         // Fake Services

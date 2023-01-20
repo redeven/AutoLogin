@@ -1,0 +1,23 @@
+{
+  "Name": "Auto Login",
+  "Author": "Redeven",
+  "InternalName": "AutoLogin",
+  "AssemblyVersion": "1.0.0.0",
+  "ApplicableVersion": "any",
+  "Description": "Automatically logs you into a specified character when the game first opens.",
+  "Punchline": "Automatically logs you into a specified character when the game first opens.",
+  "RepoUrl": "https://github.com/redeven/AutoLogin",
+  "Tags": [
+    "auto",
+    "login"
+  ],
+  "CategoryTags": null,
+  "DalamudApiLevel": 8,
+  "LoadPriority": 1,
+  "LastUpdate": 0,
+  "DownloadLinkInstall": null,
+  "DownloadLinkUpdate": null,
+  "DownloadLinkTesting": null,
+  "ImageUrls": null,
+  "IconUrl": "https://raw.githubusercontent.com/Redeven/AutoLogin/main/Resources/logo.png"
+}
