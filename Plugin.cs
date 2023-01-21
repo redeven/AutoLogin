@@ -23,8 +23,6 @@ namespace AutoLogin {
         public Config PluginConfig { get; }
 
         private bool drawConfigWindow;
-        private bool firstLogin = true;
-        private bool processRunning = false;
 
         public void Dispose() {
             Service.UiBuilder.Draw -= DrawUI;
@@ -58,14 +56,12 @@ namespace AutoLogin {
             Service.ClientState.Logout += OnGameDisconnect;
             if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0) {
                 Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
-                actionQueue.Enqueue(StartProcess);
                 actionQueue.Enqueue(OpenDataCenterMenu);
                 actionQueue.Enqueue(SelectDataCentre);
                 actionQueue.Enqueue(SelectWorld);
                 actionQueue.Enqueue(VariableDelay(10));
                 actionQueue.Enqueue(SelectCharacter);
                 actionQueue.Enqueue(SelectYes);
-                actionQueue.Enqueue(EndProcess);
             }
         }
 
@@ -77,23 +73,18 @@ namespace AutoLogin {
         private void AttemptToReconnect()
         {
             Service.PluginInterface.UiBuilder.AddNotification("Attempting to reconnect...", "AutoLogin", NotificationType.Success);
-            if (!firstLogin && !processRunning && !Service.ClientState.IsLoggedIn)
+            if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
             {
-                if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
-                {
-                    Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
-                    actionQueue.Enqueue(StartProcess);
-                    actionQueue.Enqueue(Delay10s);
-                    actionQueue.Enqueue(SelectOK);
-                    actionQueue.Enqueue(OpenDataCenterMenu);
-                    actionQueue.Enqueue(SelectDataCentre);
-                    actionQueue.Enqueue(SelectWorld);
-                    actionQueue.Enqueue(VariableDelay(10));
-                    actionQueue.Enqueue(SelectCharacter);
-                    actionQueue.Enqueue(SelectYes);
-                    actionQueue.Enqueue(Delay10s);
-                    actionQueue.Enqueue(EndProcess);
-                }
+                Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
+                actionQueue.Enqueue(Delay10s);
+                actionQueue.Enqueue(SelectOK);
+                actionQueue.Enqueue(OpenDataCenterMenu);
+                actionQueue.Enqueue(SelectDataCentre);
+                actionQueue.Enqueue(SelectWorld);
+                actionQueue.Enqueue(VariableDelay(10));
+                actionQueue.Enqueue(SelectCharacter);
+                actionQueue.Enqueue(SelectYes);
+                actionQueue.Enqueue(Delay10s);
             }
         }
 
@@ -277,19 +268,6 @@ namespace AutoLogin {
             AtkComponentButton* button = (AtkComponentButton*)buttonNode->Component;
             ClickDialogueOk.Using((IntPtr)addon).WithButton(button);
             addon->Hide(true);
-            return true;
-        }
-
-        public bool StartProcess()
-        {
-            processRunning = true;
-            return true;
-        }
-
-        public bool EndProcess()
-        {
-            processRunning = false;
-            firstLogin = false;
             return true;
         }
 
