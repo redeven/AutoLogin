@@ -23,6 +23,7 @@ namespace AutoLogin {
         public uint DataCenter;
         public uint World;
         public uint CharacterSlot;
+        public bool DebugMode;
 
         public bool DrawConfigUI() {
             var drawConfig = true;
@@ -83,6 +84,7 @@ namespace AutoLogin {
 
                 }
 
+                ImGui.Checkbox("Debug Mode", ref DebugMode);
 
             }
 

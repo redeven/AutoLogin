@@ -15,9 +15,7 @@ using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
-#if DEBUG
 using ImGuiNET;
-#endif
 #pragma warning disable CA1416 // Validate platform compatibility
 namespace AutoLogin {
     public unsafe class Plugin : IDalamudPlugin {
@@ -85,7 +83,7 @@ namespace AutoLogin {
                 {
                     Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
                     actionQueue.Enqueue(StartProcess);
-                    actionQueue.Enqueue(Delay5s);
+                    actionQueue.Enqueue(Delay10s);
                     actionQueue.Enqueue(SelectOK);
                     actionQueue.Enqueue(OpenDataCenterMenu);
                     actionQueue.Enqueue(SelectDataCentre);
@@ -271,8 +269,12 @@ namespace AutoLogin {
 
         public bool SelectOK()
         {
-            AtkUnitBase* addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 1);            
-            if (addon == null) return false;
+            AtkUnitBase* addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 1);
+            if (addon == null)
+            {
+                Service.PluginInterface.UiBuilder.AddNotification("Failed to find addon", "Auto Login", NotificationType.Error);
+                return false;
+            }
             AtkComponentNode* buttonNode = (AtkComponentNode*)addon->GetNodeById(4);
             AtkComponentButton* button = (AtkComponentButton*)buttonNode->Component;
             ClickDialogueOk.Using((IntPtr)addon).WithButton(button);
@@ -329,13 +331,11 @@ namespace AutoLogin {
         private uint? tempDc = null;
         private uint? tempWorld = null;
         private uint? tempCharacter = null;
-#if DEBUG
         private bool drawDebugWindow = false;
-#endif
         private void DrawUI() {
             drawConfigWindow = drawConfigWindow && PluginConfig.DrawConfigUI();
-#if DEBUG
-            if (!drawDebugWindow) return;
+
+            if (!drawDebugWindow && !PluginConfig.DebugMode) return;
             if (ImGui.Begin($"{this.Name} Debugging", ref drawDebugWindow)) {
                 if (ImGui.Button("Open Config")) drawConfigWindow = true;
                 if (ImGui.Button("Clear Queue")) {
@@ -406,7 +406,7 @@ namespace AutoLogin {
                 }
             }
             ImGui.End();
-#endif
+
         }
 
 
