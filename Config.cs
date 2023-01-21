@@ -84,7 +84,10 @@ namespace AutoLogin {
 
                 }
 
-                ImGui.Checkbox("Debug Mode", ref DebugMode);
+                if (ImGui.Checkbox("Debug Mode", ref DebugMode))
+                {
+                    Save();
+                }
 
             }
 
