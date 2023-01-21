@@ -259,11 +259,7 @@ namespace AutoLogin {
         public bool SelectOK()
         {
             AtkUnitBase* addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 1);
-            if (addon == null)
-            {
-                Service.PluginInterface.UiBuilder.AddNotification("Failed to find addon", "Auto Login", NotificationType.Error);
-                return false;
-            }
+            if (addon == null) return false;
             AtkComponentNode* buttonNode = (AtkComponentNode*)addon->GetNodeById(4);
             AtkComponentButton* button = (AtkComponentButton*)buttonNode->Component;
             ClickDialogueOk.Using((IntPtr)addon).WithButton(button);
