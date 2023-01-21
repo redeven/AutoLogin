@@ -191,12 +191,10 @@ namespace AutoLogin {
         private readonly Queue<Func<bool>> actionQueue = new();
 
         public void OnConfigCommandHandler(string command, string args) {
-            #if DEBUG
-            if (args.ToLowerInvariant() == "debug") {
+            if (args.ToLowerInvariant() == "debug" || PluginConfig.DebugMode) {
                 drawDebugWindow = true;
                 return;
             }
-            #endif
             OpenConfigUI();
         }
 
