@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Timers;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Command;
@@ -18,9 +17,8 @@ using Lumina.Excel.GeneratedSheets;
 using ValueType = FFXIVClientStructs.FFXIV.Component.GUI.ValueType;
 #if DEBUG
 using ImGuiNET;
-using System.Linq;
 #endif
-
+#pragma warning disable CA1416 // Validate platform compatibility
 namespace AutoLogin {
     public unsafe class Plugin : IDalamudPlugin {
         public string Name => "AutoLogin";
@@ -45,7 +43,6 @@ namespace AutoLogin {
 
             Service.UiBuilder.Draw += DrawUI;
             Service.UiBuilder.OpenConfigUi += this.OpenConfigUI;
-
             Service.Commands.AddHandler("/autologinconfig", new Dalamud.Game.Command.CommandInfo(OnConfigCommandHandler) {
                 HelpMessage = $"Open config window for {Name}",
                 ShowInHelp = true
@@ -60,6 +57,7 @@ namespace AutoLogin {
             });
 
             Service.Framework.Update += OnFrameworkUpdate;
+            Service.ClientState.Logout += OnGameDisconnect;
             if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0) {
                 Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
                 actionQueue.Enqueue(StartProcess);
@@ -71,32 +69,34 @@ namespace AutoLogin {
                 actionQueue.Enqueue(SelectYes);
                 actionQueue.Enqueue(EndProcess);
             }
-            OnGameDisconnect();
         }
 
-        private void OnGameDisconnect()
+        private void OnGameDisconnect(object sender, EventArgs e)
         {
-            Timer stateTimer = new Timer(30000);
-            stateTimer.Elapsed += (object source, ElapsedEventArgs e) =>
+            AttemptToReconnect();
+        }
+
+        private void AttemptToReconnect()
+        {
+            Service.PluginInterface.UiBuilder.AddNotification("Attempting to reconnect...", "AutoLogin", NotificationType.Success);
+            if (!firstLogin && !processRunning && !Service.ClientState.IsLoggedIn)
             {
-                if (!firstLogin && !processRunning && Service.ClientState.IsLoggedIn)
+                if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
                 {
-                    if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
-                    {
-                        Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
-                        actionQueue.Enqueue(StartProcess);
-                        actionQueue.Enqueue(SelectOK);
-                        actionQueue.Enqueue(OpenDataCenterMenu);
-                        actionQueue.Enqueue(SelectDataCentre);
-                        actionQueue.Enqueue(SelectWorld);
-                        actionQueue.Enqueue(VariableDelay(10));
-                        actionQueue.Enqueue(SelectCharacter);
-                        actionQueue.Enqueue(SelectYes);
-                        actionQueue.Enqueue(EndProcess);
-                    }
+                    Service.PluginInterface.UiBuilder.AddNotification("Starting AutoLogin Process.\nPress and hold shift to cancel.", "Auto Login", NotificationType.Info);
+                    actionQueue.Enqueue(StartProcess);
+                    actionQueue.Enqueue(Delay5s);
+                    actionQueue.Enqueue(SelectOK);
+                    actionQueue.Enqueue(OpenDataCenterMenu);
+                    actionQueue.Enqueue(SelectDataCentre);
+                    actionQueue.Enqueue(SelectWorld);
+                    actionQueue.Enqueue(VariableDelay(10));
+                    actionQueue.Enqueue(SelectCharacter);
+                    actionQueue.Enqueue(SelectYes);
+                    actionQueue.Enqueue(Delay10s);
+                    actionQueue.Enqueue(EndProcess);
                 }
-            };
-            stateTimer.Enabled = true;
+            }
         }
 
         private void OnSwapCharacterCommandHandler(string command, string arguments) {
@@ -271,9 +271,11 @@ namespace AutoLogin {
 
         public bool SelectOK()
         {
-            var addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 3);
+            AtkUnitBase* addon = (AtkUnitBase*)Service.GameGui.GetAddonByName("Dialogue", 1);            
             if (addon == null) return false;
-            GenerateCallback(addon, 0);
+            AtkComponentNode* buttonNode = (AtkComponentNode*)addon->GetNodeById(4);
+            AtkComponentButton* button = (AtkComponentButton*)buttonNode->Component;
+            ClickDialogueOk.Using((IntPtr)addon).WithButton(button);
             addon->Hide(true);
             return true;
         }
@@ -288,6 +290,12 @@ namespace AutoLogin {
         {
             processRunning = false;
             firstLogin = false;
+            return true;
+        }
+
+        public bool Delay10s()
+        {
+            Delay = 600;
             return true;
         }
 
@@ -350,6 +358,12 @@ namespace AutoLogin {
                 if (ImGui.Button("Test Step: SELECT YES")) {
                     actionQueue.Clear();
                     actionQueue.Enqueue(SelectYes);
+                }
+
+                if (ImGui.Button("Test Step: SELECT OK"))
+                {
+                    actionQueue.Clear();
+                    actionQueue.Enqueue(SelectOK);
                 }
 
                 if (ImGui.Button("Logout")) {
@@ -447,3 +461,4 @@ namespace AutoLogin {
 
     }
 }
+#pragma warning restore CA1416 // Validate platform compatibility

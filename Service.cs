@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState;
 
+#pragma warning disable CA1416 // Validate platform compatibility
 namespace AutoLogin {
     [SuppressMessage("ReSharper", "UnusedAutoPropertyAccessor.Local")]
     public class Service {
@@ -28,3 +29,4 @@ namespace AutoLogin {
         public static UiBuilder UiBuilder => PluginInterface?.UiBuilder;
     }
 }
+#pragma warning restore CA1416 // Validate platform compatibility

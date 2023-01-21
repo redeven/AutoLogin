@@ -14,7 +14,7 @@
     </PropertyGroup>
     <PropertyGroup Label="Feature">
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <Version>1.0.0.5</Version>
+        <Version>1.0.0.0</Version>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
         <AppOutputBase>$(MSBuildProjectDirectory)\</AppOutputBase>
@@ -27,6 +27,7 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="DalamudPackager" Version="2.1.10" />
+        <PackageReference Include="Reloaded.Memory" Version="7.1.0" />
     </ItemGroup>
     <ItemGroup>
         <Reference Include="Dalamud">

@@ -6,19 +6,28 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v7.0": {
-      "AutoLogin/1.0.0.5": {
+      "AutoLogin/1.0.0.0": {
         "dependencies": {
-          "DalamudPackager": "2.1.10"
+          "DalamudPackager": "2.1.10",
+          "Reloaded.Memory": "7.1.0"
         },
         "runtime": {
           "AutoLogin.dll": {}
         }
       },
-      "DalamudPackager/2.1.10": {}
+      "DalamudPackager/2.1.10": {},
+      "Reloaded.Memory/7.1.0": {
+        "runtime": {
+          "lib/net6.0/Reloaded.Memory.dll": {
+            "assemblyVersion": "7.1.0.0",
+            "fileVersion": "7.1.0.0"
+          }
+        }
+      }
     }
   },
   "libraries": {
-    "AutoLogin/1.0.0.5": {
+    "AutoLogin/1.0.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -29,6 +38,13 @@
       "sha512": "sha512-S6NrvvOnLgT4GDdgwuKVJjbFo+8ZEj+JsEYk9ojjOR/MMfv1dIFpT8aRJQfI24rtDcw1uF+GnSSMN4WW1yt7fw==",
       "path": "dalamudpackager/2.1.10",
       "hashPath": "dalamudpackager.2.1.10.nupkg.sha512"
+    },
+    "Reloaded.Memory/7.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-4Y5tCsRWdW/shj9W7RqJq37LStuW1VVtjxsBp4LKZilPcjudeQg9k+u+6fnDgacCEJiG3S2EtcaiNtVMTdaSnQ==",
+      "path": "reloaded.memory/7.1.0",
+      "hashPath": "reloaded.memory.7.1.0.nupkg.sha512"
     }
   }
 }
