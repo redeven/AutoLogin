@@ -75,6 +75,7 @@ namespace AutoLogin {
             Service.PluginInterface.UiBuilder.AddNotification("Attempting to reconnect...", "AutoLogin", NotificationType.Success);
             if (PluginConfig.DataCenter != 0 && PluginConfig.World != 0)
             {
+                actionQueue.Enqueue(Delay10s);
                 actionQueue.Enqueue(SelectOK);
                 actionQueue.Enqueue(OpenDataCenterMenu);
                 actionQueue.Enqueue(SelectDataCentre);
